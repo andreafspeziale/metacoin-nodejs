@@ -1,0 +1,8 @@
+{
+    "name": "b9lab-nodejs-example",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "web3": "0.20.5"
+    }
+}
