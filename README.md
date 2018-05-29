@@ -13,6 +13,11 @@ Truffle MetaCoin sample plus nodeJS server.
 
 `$ geth --networkid 42 --datadir ~/Library/Ethereum/net42 console`
 
+Remember also to:
+
+- start mining with `miner.start(1)`
+- unlock your account with `personal.unlockAccount(YOUR_ACCOUNT)`
+
 ### Network configuration in the truffle.js
 
 ```
