@@ -53,7 +53,7 @@ Http.createServer(( async (request, response) => {
             console.log(`START WITH /balance/`)
             const who = pathname.slice(9, 51);
             if (!EthUtil.isValidAddress(who)) {
-                console.log("invalid address")
+                console.log("INVALID ADDRESS")
                 badRequest(`${who} is not a valid address`, response);
             } else {
                 try {
@@ -73,6 +73,39 @@ Http.createServer(( async (request, response) => {
             console.log(`${pathname} INVALID ENDPOINT`)
             notFound(`${pathname} not found`, response)
         } 
+    } else if(request.method == 'PATCH') {
+        if (pathname.startsWith("/sendOneTo/")) {
+            console.log(`START WITH /sendOneTo/`)
+            const toWhom = pathname.slice(11, 53)
+            if (!EthUtil.isValidAddress(toWhom)) {
+                badRequest(toWhom + " is not a valid address", response);
+            } else {
+                try {
+                    
+                    // Notice the serious security risk here, whereby anyone can send transactions on behalf of your account. 
+                    // Take this as an example only. Also note how we use .sendCoin.sendTransaction(). 
+                    // This tells truffle-contract that we want to get the transaction hash immediately, and we do not wish to wait for the transaction to be mined, as would happen with a simpler .sendCoin(). 
+                    // In this case, it is beneficial so that the HTTP request completes as fast as possible.
+
+                    const accounts = await prepared.web3.eth.getAccountsPromise()
+                    console.log("ACCOUNTS: ", accounts)
+                    const contract = await prepared.MetaCoin.deployed()
+                    const txHash = await contract.sendCoin.sendTransaction(toWhom, 1, { from: accounts[0] })
+                    console.log("TX: ", txHash)
+                    response.writeHeader(200, {"Content-Type": "application/json"})
+                    response.write(JSON.stringify({
+                        txHash: txHash
+                    }));
+                    response.end()
+                } catch(e) {
+                    console.log("ERROR: ", e)
+                    serverError(err, response)
+                }
+            }
+        } else {
+            console.log(`${pathname} INVALID ENDPOINT`)
+            notFound(`${pathname} not found, response`);
+        }
     } else {
             console.log('INVALID METHOD')
             invalidMethod(response)
