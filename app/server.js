@@ -1,6 +1,7 @@
 const Http = require('http');
 const Url = require('url');
 const prepared = require('./prepare.js');
+const EthUtil = require("ethereumjs-util");
 
 const serverError = (err, response) => {
     response.writeHeader(500, {'Content-Type': 'text/plain'});
@@ -19,7 +20,13 @@ const notFound = (err, response) => {
     response.end();
 }
 
-Http.createServer(((request, response) => {
+const badRequest = (response, err) => {
+    response.writeHeader(400, {"Content-Type": "text/plain"});
+    response.write(err.toString());
+    response.end();
+}
+
+Http.createServer(( async (request, response) => {
     console.log(`REQUESTED URL: ${request.url}`)
     let pathname = Url.parse(request.url).pathname
 
@@ -42,6 +49,26 @@ Http.createServer(((request, response) => {
                     response.end()
                 }
             }) 
+        } else if(pathname.startsWith('/balance/')) {
+            console.log(`START WITH /balance/`)
+            const who = pathname.slice(9, 51);
+            if (!EthUtil.isValidAddress(who)) {
+                console.log("invalid address")
+                badRequest(`${who} is not a valid address`, response);
+            } else {
+                try {
+                    const contract = await prepared.MetaCoin.deployed()
+                    const balance = await contract.getBalance.call(who)
+                    response.writeHeader(200, {"Content-Type": "application/json"});
+                    response.write(JSON.stringify({
+                        "address": who,
+                        "balance": balance.toString(10)
+                    }) + 'n');
+                    response.end();
+                } catch(e) {
+                    erverError(e, response)
+                }
+            }
         } else {
             console.log(`${pathname} INVALID ENDPOINT`)
             notFound(`${pathname} not found`, response)
