@@ -16,7 +16,7 @@ Truffle MetaCoin sample plus nodeJS server.
 Remember also to:
 
 - start mining with `miner.start(1)`
-- unlock your account with `personal.unlockAccount(YOUR_ACCOUNT)`
+- unlock your account with `personal.unlockAccount(YOUR_ACCOUNT, PSW, 0)`
 
 ### Network configuration in the truffle.js
 
