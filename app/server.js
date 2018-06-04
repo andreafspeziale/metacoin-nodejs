@@ -1,29 +1,29 @@
-const Http = require('http');
-const Url = require('url');
-const prepared = require('./prepare.js');
-const EthUtil = require("ethereumjs-util");
+const Http = require('http')
+const Url = require('url')
+const prepared = require('./prepare.js')
+const EthUtil = require("ethereumjs-util")
 
 const serverError = (err, response) => {
-    response.writeHeader(500, {'Content-Type': 'text/plain'});
-    response.write(err.toString());
-    response.end();                    
+    response.writeHeader(500, {'Content-Type': 'text/plain'})
+    response.write(err.toString())
+    response.end()                    
 }
 
 const invalidMethod = (response) => {
-    response.writeHeader(405);
-    response.end();
+    response.writeHeader(405)
+    response.end()
 }
 
 const notFound = (err, response) => {
-    response.writeHeader(404, {'Content-Type': 'text/plain'});
-    response.write(err.toString());
-    response.end();
+    response.writeHeader(404, {'Content-Type': 'text/plain'})
+    response.write(err.toString())
+    response.end()
 }
 
 const badRequest = (response, err) => {
-    response.writeHeader(400, {"Content-Type": "text/plain"});
-    response.write(err.toString());
-    response.end();
+    response.writeHeader(400, {"Content-Type": "text/plain"})
+    response.write(err.toString())
+    response.end()
 }
 
 Http.createServer(( async (request, response) => {
@@ -34,7 +34,7 @@ Http.createServer(( async (request, response) => {
         console.log(`GET REQUEST`)
         if(pathname.startsWith('/tx/')) {
             console.log(`START WITH /TX/`)
-            const txHash = pathname.slice(4, 70);
+            const txHash = pathname.slice(4, 70)
             console.log(`TXHASH: ${txHash}`)
             prepared.web3.eth.getTransaction(txHash, (err, tx) => {
                 if(err) {
@@ -51,20 +51,20 @@ Http.createServer(( async (request, response) => {
             }) 
         } else if(pathname.startsWith('/balance/')) {
             console.log(`START WITH /balance/`)
-            const who = pathname.slice(9, 51);
+            const who = pathname.slice(9, 51)
             if (!EthUtil.isValidAddress(who)) {
                 console.log("INVALID ADDRESS")
-                badRequest(`${who} is not a valid address`, response);
+                badRequest(`${who} is not a valid address`, response)
             } else {
                 try {
                     const contract = await prepared.MetaCoin.deployed()
                     const balance = await contract.getBalance.call(who)
-                    response.writeHeader(200, {"Content-Type": "application/json"});
+                    response.writeHeader(200, {"Content-Type": "application/json"})
                     response.write(JSON.stringify({
                         "address": who,
                         "balance": balance.toString(10)
-                    }) + 'n');
-                    response.end();
+                    }) + 'n')
+                    response.end()
                 } catch(e) {
                     erverError(e, response)
                 }
@@ -78,7 +78,7 @@ Http.createServer(( async (request, response) => {
             console.log(`START WITH /sendOneTo/`)
             const toWhom = pathname.slice(11, 53)
             if (!EthUtil.isValidAddress(toWhom)) {
-                badRequest(toWhom + " is not a valid address", response);
+                badRequest(toWhom + " is not a valid address", response)
             } else {
                 try {
                     
@@ -95,7 +95,7 @@ Http.createServer(( async (request, response) => {
                     response.writeHeader(200, {"Content-Type": "application/json"})
                     response.write(JSON.stringify({
                         txHash: txHash
-                    }));
+                    }))
                     response.end()
                 } catch(e) {
                     console.log("ERROR: ", e)
@@ -104,7 +104,7 @@ Http.createServer(( async (request, response) => {
             }
         } else {
             console.log(`${pathname} INVALID ENDPOINT`)
-            notFound(`${pathname} not found, response`);
+            notFound(`${pathname} not found, response`)
         }
     } else {
             console.log('INVALID METHOD')
