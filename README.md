@@ -4,9 +4,9 @@ Truffle MetaCoin sample plus nodeJS server.
 ## System used and requirements
 
 - `node`
-- `geth`
+- `geth@1.8.7-stable`
 - `macosx`
-- `truffle`
+- `truffle@4.1.8`
 
 ## Steps
 ### Start a local network
@@ -48,8 +48,21 @@ Linking ConvertLib to MetaCoin
 `$ cd /app`
 `$ node server.js`
 
+### Start the event logger
+
+`$ cd /app`
+`$ node listen.js`
+
 ### Try the API
-While the server is running open a new terminal window and using the txhash during the migration process try:
+While the server and the event listener are running open a new terminal window and using the txhash during the migration process and your accounts try:
 
 `$ curl http://localhost:8080/tx/0x82f6008c4335ab5acaad505c6726fa40c8e050ccb8edbbfaf90bf6ed11cc1e1a`
+
+or
+
+`$ curl http://localhost:8080/balance/DEPLOYER_ACCOUNT_ADDRESS`
+
+or
+
+`$ curl -X PATCH http://localhost:8080/sendOneTo/0xbfbdf60fc49ecfcac2e98efe1cd4db6d5d239722`
 
